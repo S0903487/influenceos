@@ -1,153 +1,96 @@
 import type { AuthResponse, LoginCredentials, PasswordResetRequest, RegisterCredentials, User } from '../types/auth';
 
-// Fake auth service with mock data
-// This is prepared for Cloudflare Workers backend integration
-// Replace these mock implementations with actual API calls to CF Workers
+// Talks to the Cloudflare Worker backend in `worker/handlers/auth.ts`,
+// mounted at /api/auth/* (see worker/index.ts).
+const API_BASE = '/api/auth';
 
-const MOCK_USERS: Map<string, { user: User; password: string }> = new Map([
-  [
-    'demo@example.com',
-    {
-      user: {
-        id: '1',
-        email: 'demo@example.com',
-        name: 'Demo User',
-        createdAt: new Date().toISOString(),
-      },
-      password: 'DemoPass123',
-    },
-  ],
-]);
+interface ApiErrorBody {
+  error?: string;
+}
 
-let CURRENT_TOKEN = 'mock_token_' + Date.now();
+async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string> | undefined),
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const message = (data as ApiErrorBody | null)?.error ?? 'Something went wrong. Please try again.';
+    throw new Error(message);
+  }
+
+  return data as T;
+}
 
 /**
- * Simulates an API call to login a user
- * Replace this with actual Cloudflare Workers endpoint:
  * POST /api/auth/login
  */
 export async function loginUser(credentials: LoginCredentials): Promise<AuthResponse> {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const mockUser = MOCK_USERS.get(credentials.email);
-
-  if (!mockUser || mockUser.password !== credentials.password) {
-    throw new Error('Invalid email or password');
-  }
-
-  CURRENT_TOKEN = 'mock_token_' + Date.now();
-
-  return {
-    user: mockUser.user,
-    token: CURRENT_TOKEN,
-  };
+  return apiRequest<AuthResponse>('/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials),
+  });
 }
 
 /**
- * Simulates an API call to register a new user
- * Replace this with actual Cloudflare Workers endpoint:
  * POST /api/auth/register
  */
 export async function registerUser(credentials: RegisterCredentials): Promise<AuthResponse> {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  if (MOCK_USERS.has(credentials.email)) {
-    throw new Error('Email already registered');
-  }
-
-  const newUser: User = {
-    id: 'user_' + Date.now(),
-    email: credentials.email,
-    name: credentials.name,
-    createdAt: new Date().toISOString(),
-  };
-
-  MOCK_USERS.set(credentials.email, {
-    user: newUser,
-    password: credentials.password,
+  return apiRequest<AuthResponse>('/register', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: credentials.name,
+      email: credentials.email,
+      password: credentials.password,
+    }),
   });
-
-  CURRENT_TOKEN = 'mock_token_' + Date.now();
-
-  return {
-    user: newUser,
-    token: CURRENT_TOKEN,
-  };
 }
 
 /**
- * Simulates an API call to verify the current token
- * Replace this with actual Cloudflare Workers endpoint:
  * GET /api/auth/me
+ * The token itself is attached via the Authorization header in apiRequest;
+ * the argument is kept so callers (useAuthUser) don't need to change.
  */
-export async function verifyToken(token: string): Promise<User> {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  if (token !== CURRENT_TOKEN) {
-    throw new Error('Invalid or expired token');
-  }
-
-  // Return the currently "logged in" user
-  const currentUser = Array.from(MOCK_USERS.values())[0]?.user;
-
-  if (!currentUser) {
-    throw new Error('User not found');
-  }
-
-  return currentUser;
+export async function verifyToken(_token: string): Promise<User> {
+  return apiRequest<User>('/me', { method: 'GET' });
 }
 
 /**
- * Simulates an API call to logout the user
- * Replace this with actual Cloudflare Workers endpoint:
  * POST /api/auth/logout
  */
 export async function logoutUser(): Promise<void> {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  CURRENT_TOKEN = '';
+  await apiRequest<{ success: boolean }>('/logout', { method: 'POST' });
 }
 
 /**
- * Simulates an API call to request password reset
- * Replace this with actual Cloudflare Workers endpoint:
  * POST /api/auth/forgot-password
  */
 export async function requestPasswordReset(data: PasswordResetRequest): Promise<void> {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 400));
-
-  if (!MOCK_USERS.has(data.email)) {
-    // Don't reveal if email exists for security
-    return;
-  }
-
-  // In real implementation, send reset email via Cloudflare Workers
-  console.log(`Password reset email sent to ${data.email}`);
+  await apiRequest<{ success: boolean }>('/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 }
 
-/**
- * Simulates storing auth token in localStorage
- * Prepared for Cloudflare Workers session management
- */
 export function setAuthToken(token: string): void {
   localStorage.setItem('auth_token', token);
 }
 
-/**
- * Simulates retrieving auth token from localStorage
- */
 export function getAuthToken(): string | null {
   return localStorage.getItem('auth_token');
 }
 
-/**
- * Simulates clearing auth token from localStorage
- */
 export function clearAuthToken(): void {
   localStorage.removeItem('auth_token');
 }
