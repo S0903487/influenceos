@@ -1,6 +1,9 @@
 import type { Campaign } from '../types/campaign';
 
-const generateId = (prefix = ''): string => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const generateId = (prefix = ''): string => {
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return prefix ? `${prefix}-${suffix}` : suffix;
+};
 
 const campaigns: Campaign[] = [];
 
