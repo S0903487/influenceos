@@ -1,8 +1,4 @@
 import type { Campaign, Client, Influencer, Organization } from '../db/models'
-import { campaignRepository } from '../repositories/campaignRepository'
-import { clientRepository } from '../repositories/clientRepository'
-import { influencerRepository } from '../repositories/influencerRepository'
-import { organizationRepository } from '../repositories/organizationRepository'
 
 export type InfluenceService = {
   getOrganizations: () => Promise<Organization[]>
@@ -12,8 +8,8 @@ export type InfluenceService = {
 }
 
 export const influenceService: InfluenceService = {
-  getOrganizations: async () => organizationRepository.list(),
-  getInfluencers: async () => influencerRepository.list(),
-  getCampaigns: async () => campaignRepository.list(),
-  getClients: async () => clientRepository.list(),
+  getOrganizations: async () => [],
+  getInfluencers: async () => [],
+  getCampaigns: async () => [],
+  getClients: async () => [],
 }

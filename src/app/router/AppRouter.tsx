@@ -5,7 +5,7 @@ import AnalyticsPage from '../../features/analytics/AnalyticsPage'
 import CampaignsPage from '../../features/campaigns/CampaignsPage'
 import ClientsPage from '../../features/clients/ClientsPage'
 import DashboardPage from '../../features/dashboard/DashboardPage'
-import InfluencersPage from '../../features/influencers/pages/InfluencersPage'
+import InfluencersPage from '../../features/influencers/InfluencersPage'
 import SettingsPage from '../../features/settings/SettingsPage'
 
 function AppRouter() {

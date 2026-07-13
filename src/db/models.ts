@@ -11,12 +11,7 @@ export type Influencer = {
   name: string
   handle: string
   platform: string
-  followers: string
-  engagement: string
-  category: string
-  country: string
   status: 'active' | 'review' | 'paused'
-  profileImage: string
 }
 
 export type Campaign = {

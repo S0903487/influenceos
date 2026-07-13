@@ -39,14 +39,6 @@ function InfluencerCard({ influencer }: InfluencerCardProps) {
           <p>{influencer.engagement}</p>
         </div>
         <div>
-          <p className="text-slate-500">Category</p>
-          <p>{influencer.category}</p>
-        </div>
-        <div>
-          <p className="text-slate-500">Country</p>
-          <p>{influencer.country}</p>
-        </div>
-        <div>
           <p className="text-slate-500">Status</p>
           <p>{influencer.status}</p>
         </div>
