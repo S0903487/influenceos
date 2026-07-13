@@ -1,4 +1,4 @@
-import { Client } from '../types/client';
+import type { Client } from '../types/client';
 
 const generateId = (prefix = ''): string => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 

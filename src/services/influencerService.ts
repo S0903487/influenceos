@@ -1,4 +1,4 @@
-import { Influencer } from '../types/influencer';
+import type { Influencer } from '../types/influencer';
 
 const generateId = (prefix = ''): string => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
