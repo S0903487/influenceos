@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "db:migrate:local": "wrangler d1 execute influenceos-db --local --file=./schema.sql",
+    "db:migrate:remote": "wrangler d1 execute influenceos-db --remote --file=./schema.sql"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -21,6 +24,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.44.0",
+    "@cloudflare/workers-types": "^4.202.0",
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.2",
     "@types/node": "^24.13.2",
