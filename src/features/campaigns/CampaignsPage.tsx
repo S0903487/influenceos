@@ -2,8 +2,10 @@ import { useMemo, useState } from 'react'
 import { Plus } from 'lucide-react'
 import PageShell from '../../components/shared/PageShell'
 import { useClients } from '../clients/hooks/useClients'
+import { useOrganization } from '../organizations/hooks/useOrganization'
 import { useCampaigns, useCreateCampaign } from './hooks/useCampaigns'
 import { AddCampaignModal } from './components/AddCampaignModal'
+import { formatCurrency } from '../../lib/currency'
 import type { CreateCampaignInput } from './types'
 
 const STATUS_STYLES: Record<string, string> = {
@@ -14,14 +16,10 @@ const STATUS_STYLES: Record<string, string> = {
   cancelled: 'bg-red-500/10 text-red-300 border-red-500/30',
 }
 
-function formatBudget(budget: number | null) {
-  if (budget === null || budget === undefined) return '—'
-  return `$${budget.toLocaleString()}`
-}
-
 function CampaignsPage() {
   const { data: campaigns, isLoading, isError, error } = useCampaigns()
   const { data: clients } = useClients()
+  const { data: organization } = useOrganization()
   const createCampaign = useCreateCampaign()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -92,7 +90,7 @@ function CampaignsPage() {
                     <td className="py-3 pr-4">
                       {campaign.startDate || '—'} → {campaign.endDate || '—'}
                     </td>
-                    <td className="py-3 pr-4">{formatBudget(campaign.budget)}</td>
+                    <td className="py-3 pr-4">{formatCurrency(campaign.budget, organization?.currency)}</td>
                     <td className="py-3 pr-4">{campaign.influencerIds.length}</td>
                     <td className="py-3 pr-4">
                       <span className={`rounded-full border px-2.5 py-1 text-xs capitalize ${STATUS_STYLES[campaign.status] ?? ''}`}>
@@ -112,6 +110,7 @@ function CampaignsPage() {
         isSubmitting={createCampaign.isPending}
         errorMessage={createCampaign.error instanceof Error ? createCampaign.error.message : null}
         clients={clients ?? []}
+        currency={organization?.currency ?? 'USD'}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
       />

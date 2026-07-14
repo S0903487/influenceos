@@ -38,3 +38,15 @@ select {
 img {
   display: block;
 }
+
+/* Native form controls default to light-mode popups even in a dark app;
+   force dark rendering so <select> option lists and date pickers are readable. */
+select,
+input[type='date'] {
+  color-scheme: dark;
+}
+
+select option {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}

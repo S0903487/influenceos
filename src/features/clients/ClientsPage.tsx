@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import PageShell from '../../components/shared/PageShell'
+import { Avatar } from '../../components/shared/Avatar'
 import { useClients, useCreateClient } from './hooks/useClients'
 import { AddClientModal } from './components/AddClientModal'
 import type { CreateClientInput } from './types'
@@ -70,7 +71,12 @@ function ClientsPage() {
               <tbody>
                 {clients.map((client) => (
                   <tr key={client.id} className="border-b border-slate-800/60 text-slate-300">
-                    <td className="py-3 pr-4 font-medium text-white">{client.name}</td>
+                    <td className="py-3 pr-4 font-medium text-white">
+                      <div className="flex items-center gap-3">
+                        <Avatar name={client.name} size={32} />
+                        {client.name}
+                      </div>
+                    </td>
                     <td className="py-3 pr-4">{client.contactEmail || '—'}</td>
                     <td className="py-3 pr-4">{client.industry || '—'}</td>
                     <td className="py-3 pr-4">

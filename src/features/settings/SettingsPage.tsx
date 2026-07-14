@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import PageShell from '../../components/shared/PageShell'
 import { useOrganization, useUpdateOrganization } from '../organizations/hooks/useOrganization'
 import { useAuthUser } from '../auth/hooks/useAuth'
+import { CURRENCIES } from '../../lib/currency'
 
 function SettingsPage() {
   const { data: organization, isLoading, isError, error } = useOrganization()
@@ -11,18 +12,20 @@ function SettingsPage() {
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [currency, setCurrency] = useState('USD')
 
   useEffect(() => {
     if (organization) {
       setName(organization.name)
       setDescription(organization.description ?? '')
+      setCurrency(organization.currency)
     }
   }, [organization])
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!name.trim()) return
-    updateOrganization.mutate({ name: name.trim(), description: description.trim() })
+    updateOrganization.mutate({ name: name.trim(), description: description.trim(), currency })
   }
 
   return (
@@ -61,6 +64,21 @@ function SettingsPage() {
                   onChange={(event) => setDescription(event.target.value)}
                   className="min-h-24 w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
                 />
+              </label>
+              <label className="text-sm text-slate-400">
+                <span className="mb-2 block">Currency</span>
+                <select
+                  value={currency}
+                  onChange={(event) => setCurrency(event.target.value)}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                >
+                  {CURRENCIES.map((code) => (
+                    <option key={code} value={code}>
+                      {code}
+                    </option>
+                  ))}
+                </select>
+                <span className="mt-1 block text-xs text-slate-500">Used to format budgets and revenue across the app.</span>
               </label>
 
               {updateOrganization.isError && (

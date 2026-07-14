@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { X } from 'lucide-react'
+import { Avatar } from '../../../components/shared/Avatar'
+import { COUNTRIES } from '../../../lib/countries'
 import type { Influencer, Platform } from '../types'
 import type { CreateInfluencerInput } from '../services/influencerService'
 
@@ -17,12 +19,13 @@ const defaultForm = {
   username: '',
   platform: 'Instagram' as Platform,
   category: 'Lifestyle',
-  country: 'USA',
+  country: 'United States',
   language: 'English',
   email: '',
   phone: '',
   notes: '',
   status: 'Active' as Influencer['status'],
+  profileImage: '',
 }
 
 export function AddInfluencerModal({ isOpen, isSubmitting, errorMessage, onClose, onSubmit }: AddInfluencerModalProps) {
@@ -49,6 +52,7 @@ export function AddInfluencerModal({ isOpen, isSubmitting, errorMessage, onClose
       status: form.status,
       notes: form.notes.trim() || undefined,
       tags: ['New Lead'],
+      profileImage: form.profileImage.trim() || undefined,
     })
   }
 
@@ -110,11 +114,17 @@ export function AddInfluencerModal({ isOpen, isSubmitting, errorMessage, onClose
           </label>
           <label className="text-sm text-slate-400">
             <span className="mb-2 block">Country</span>
-            <input
+            <select
               value={form.country}
               onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))}
               className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
-            />
+            >
+              {COUNTRIES.map((country) => (
+                <option key={country} value={country}>
+                  {country}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="text-sm text-slate-400">
             <span className="mb-2 block">Email</span>
@@ -144,6 +154,18 @@ export function AddInfluencerModal({ isOpen, isSubmitting, errorMessage, onClose
               onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
               className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
             />
+          </label>
+          <label className="text-sm text-slate-400 md:col-span-2">
+            <span className="mb-2 block">Profile image URL</span>
+            <div className="flex items-center gap-3">
+              <Avatar name={form.fullName || 'New Creator'} imageUrl={form.profileImage} size={40} />
+              <input
+                value={form.profileImage}
+                onChange={(event) => setForm((current) => ({ ...current, profileImage: event.target.value }))}
+                placeholder="https://…"
+                className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+              />
+            </div>
           </label>
           <label className="text-sm text-slate-400 md:col-span-2">
             <span className="mb-2 block">Notes</span>

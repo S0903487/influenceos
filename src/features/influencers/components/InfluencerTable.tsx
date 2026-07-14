@@ -1,3 +1,4 @@
+import { Avatar } from '../../../components/shared/Avatar'
 import type { Influencer } from '../types'
 
 type InfluencerTableProps = {
@@ -23,7 +24,7 @@ export function InfluencerTable({ influencers }: InfluencerTableProps) {
             <tr key={influencer.id} className="hover:bg-slate-800/70">
               <td className="px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <img src={influencer.profileImage} alt={influencer.fullName} className="h-10 w-10 rounded-full object-cover" />
+                  <Avatar name={influencer.fullName} imageUrl={influencer.profileImage} size={40} />
                   <div>
                     <p className="font-semibold text-white">{influencer.fullName}</p>
                     <p className="text-xs text-slate-500">{influencer.username}</p>

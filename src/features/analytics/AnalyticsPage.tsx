@@ -2,13 +2,16 @@ import { useMemo, useState } from 'react'
 import { Plus } from 'lucide-react'
 import PageShell from '../../components/shared/PageShell'
 import { useInfluencers } from '../influencers/hooks/useInfluencers'
+import { useOrganization } from '../organizations/hooks/useOrganization'
 import { useAnalyticsRecords, useCreateAnalyticsRecord } from './hooks/useAnalytics'
 import { AddAnalyticsRecordModal } from './components/AddAnalyticsRecordModal'
+import { formatCurrency } from '../../lib/currency'
 import type { CreateAnalyticsInput } from './types'
 
 function AnalyticsPage() {
   const { data: records, isLoading, isError, error } = useAnalyticsRecords()
   const { data: influencers } = useInfluencers()
+  const { data: organization } = useOrganization()
   const createRecord = useCreateAnalyticsRecord()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -59,7 +62,7 @@ function AnalyticsPage() {
         </div>
         <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-lg shadow-slate-950/20">
           <p className="text-sm text-slate-400">Revenue</p>
-          <p className="mt-2 text-2xl font-semibold text-white">${totals.revenue.toLocaleString()}</p>
+          <p className="mt-2 text-2xl font-semibold text-white">{formatCurrency(totals.revenue, organization?.currency)}</p>
         </div>
       </div>
 
@@ -112,7 +115,7 @@ function AnalyticsPage() {
                     <td className="py-3 pr-4">{(record.impressions ?? 0).toLocaleString()}</td>
                     <td className="py-3 pr-4">{(record.clicks ?? 0).toLocaleString()}</td>
                     <td className="py-3 pr-4">{(record.conversions ?? 0).toLocaleString()}</td>
-                    <td className="py-3 pr-4">${(record.revenue ?? 0).toLocaleString()}</td>
+                    <td className="py-3 pr-4">{formatCurrency(record.revenue, organization?.currency)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -126,6 +129,7 @@ function AnalyticsPage() {
         isSubmitting={createRecord.isPending}
         errorMessage={createRecord.error instanceof Error ? createRecord.error.message : null}
         influencers={influencers ?? []}
+        currency={organization?.currency ?? 'USD'}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
       />

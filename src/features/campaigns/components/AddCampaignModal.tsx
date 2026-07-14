@@ -9,6 +9,7 @@ type AddCampaignModalProps = {
   isSubmitting: boolean
   errorMessage: string | null
   clients: Client[]
+  currency: string
   onClose: () => void
   onSubmit: (data: CreateCampaignInput) => void
 }
@@ -23,7 +24,7 @@ const emptyForm: CreateCampaignInput = {
   status: 'draft',
 }
 
-export function AddCampaignModal({ isOpen, isSubmitting, errorMessage, clients, onClose, onSubmit }: AddCampaignModalProps) {
+export function AddCampaignModal({ isOpen, isSubmitting, errorMessage, clients, currency, onClose, onSubmit }: AddCampaignModalProps) {
   const [form, setForm] = useState<CreateCampaignInput>(emptyForm)
 
   if (!isOpen) return null
@@ -114,7 +115,7 @@ export function AddCampaignModal({ isOpen, isSubmitting, errorMessage, clients, 
             </div>
             <div className="grid grid-cols-2 gap-4">
               <label className="text-sm text-slate-400">
-                <span className="mb-2 block">Budget (USD)</span>
+                <span className="mb-2 block">Budget ({currency})</span>
                 <input
                   type="number"
                   min="0"

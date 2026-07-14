@@ -4,6 +4,7 @@ import { badRequest, json, notFound, nowIso, readJson } from '../utils';
 interface OrganizationBody {
   name?: string;
   description?: string;
+  currency?: string;
 }
 
 function toApi(row: Record<string, unknown>) {
@@ -11,6 +12,7 @@ function toApi(row: Record<string, unknown>) {
     id: row.id,
     name: row.name,
     description: row.description,
+    currency: row.currency ?? 'USD',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -36,6 +38,10 @@ export async function updateCurrent(request: Request, env: Env, auth: AuthedRequ
   if ('description' in body) {
     sets.push('description = ?');
     values.push(body.description);
+  }
+  if ('currency' in body) {
+    sets.push('currency = ?');
+    values.push(body.currency);
   }
   if (sets.length === 0) return badRequest('No fields to update');
 

@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS organizations (
   id          TEXT PRIMARY KEY,
   name        TEXT NOT NULL,
   description TEXT,
+  currency    TEXT NOT NULL DEFAULT 'USD',
   created_at  TEXT NOT NULL,
   updated_at  TEXT
 );

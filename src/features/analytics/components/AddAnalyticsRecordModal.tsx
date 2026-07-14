@@ -9,6 +9,7 @@ type AddAnalyticsRecordModalProps = {
   isSubmitting: boolean
   errorMessage: string | null
   influencers: Influencer[]
+  currency: string
   onClose: () => void
   onSubmit: (data: CreateAnalyticsInput) => void
 }
@@ -29,6 +30,7 @@ export function AddAnalyticsRecordModal({
   isSubmitting,
   errorMessage,
   influencers,
+  currency,
   onClose,
   onSubmit,
 }: AddAnalyticsRecordModalProps) {
@@ -130,7 +132,7 @@ export function AddAnalyticsRecordModal({
                 />
               </label>
               <label className="text-sm text-slate-400">
-                <span className="mb-2 block">Revenue (USD)</span>
+                <span className="mb-2 block">Revenue ({currency})</span>
                 <input
                   type="number"
                   min="0"

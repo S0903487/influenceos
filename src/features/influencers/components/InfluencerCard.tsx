@@ -1,3 +1,4 @@
+import { Avatar } from '../../../components/shared/Avatar'
 import type { Influencer } from '../types'
 
 type InfluencerCardProps = {
@@ -8,7 +9,7 @@ export function InfluencerCard({ influencer }: InfluencerCardProps) {
   return (
     <article className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-lg shadow-slate-950/20">
       <div className="flex items-center gap-3">
-        <img src={influencer.profileImage} alt={influencer.fullName} className="h-12 w-12 rounded-full object-cover" />
+        <Avatar name={influencer.fullName} imageUrl={influencer.profileImage} size={48} />
         <div>
           <h3 className="font-semibold text-white">{influencer.fullName}</h3>
           <p className="text-sm text-slate-400">{influencer.username}</p>
