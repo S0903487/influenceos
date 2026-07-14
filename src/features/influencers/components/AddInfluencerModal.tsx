@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { X } from 'lucide-react'
 import { Avatar } from '../../../components/shared/Avatar'
+import { Select, fieldClass, textAreaClass, labelClass } from '../../../components/shared/fields'
 import { COUNTRIES } from '../../../lib/countries'
 import type { Influencer, Platform } from '../types'
 import type { CreateInfluencerInput } from '../services/influencerService'
@@ -74,88 +75,85 @@ export function AddInfluencerModal({ isOpen, isSubmitting, errorMessage, onClose
         )}
 
         <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Full name</span>
             <input
               value={form.fullName}
               onChange={(event) => setForm((current) => ({ ...current, fullName: event.target.value }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+              className={fieldClass}
               required
             />
           </label>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Username</span>
             <input
               value={form.username}
               onChange={(event) => setForm((current) => ({ ...current, username: event.target.value }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+              className={fieldClass}
               required
             />
           </label>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Platform</span>
-            <select
+            <Select
               value={form.platform}
               onChange={(event) => setForm((current) => ({ ...current, platform: event.target.value as Platform }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
             >
               <option value="Instagram">Instagram</option>
               <option value="TikTok">TikTok</option>
               <option value="YouTube">YouTube</option>
-            </select>
+            </Select>
           </label>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Category</span>
             <input
               value={form.category}
               onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+              className={fieldClass}
             />
           </label>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Country</span>
-            <select
+            <Select
               value={form.country}
               onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
             >
               {COUNTRIES.map((country) => (
                 <option key={country} value={country}>
                   {country}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Email</span>
             <input
               value={form.email}
               onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+              className={fieldClass}
             />
           </label>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Status</span>
-            <select
+            <Select
               value={form.status}
               onChange={(event) => setForm((current) => ({ ...current, status: event.target.value as Influencer['status'] }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
             >
               <option value="Active">Active</option>
               <option value="Review">Review</option>
               <option value="Paused">Paused</option>
               <option value="Booked">Booked</option>
-            </select>
+            </Select>
           </label>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Phone</span>
             <input
               value={form.phone}
               onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+              className={fieldClass}
             />
           </label>
-          <label className="text-sm text-slate-400 md:col-span-2">
+          <label className={`${labelClass} md:col-span-2`}>
             <span className="mb-2 block">Profile image URL</span>
             <div className="flex items-center gap-3">
               <Avatar name={form.fullName || 'New Creator'} imageUrl={form.profileImage} size={40} />
@@ -163,16 +161,16 @@ export function AddInfluencerModal({ isOpen, isSubmitting, errorMessage, onClose
                 value={form.profileImage}
                 onChange={(event) => setForm((current) => ({ ...current, profileImage: event.target.value }))}
                 placeholder="https://…"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                className={fieldClass}
               />
             </div>
           </label>
-          <label className="text-sm text-slate-400 md:col-span-2">
+          <label className={`${labelClass} md:col-span-2`}>
             <span className="mb-2 block">Notes</span>
             <textarea
               value={form.notes}
               onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))}
-              className="min-h-24 w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+              className={textAreaClass}
             />
           </label>
 

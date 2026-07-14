@@ -46,6 +46,22 @@ input[type='date'] {
   color-scheme: dark;
 }
 
+/* The native date-picker icon defaults to a dim, hard-to-see glyph even
+   with color-scheme: dark; brighten it and give it a hover state so it
+   reads as an actual clickable control. */
+input[type='date']::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 3px;
+  opacity: 0.75;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background-color: rgba(148, 163, 184, 0.16);
+}
+
 select option {
   background-color: #0f172a;
   color: #f1f5f9;

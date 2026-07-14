@@ -48,6 +48,7 @@ function Topbar() {
             onClick={() => setIsMenuOpen((open) => !open)}
             aria-label="Account menu"
             aria-expanded={isMenuOpen}
+            className={styles.avatarButton}
           >
             <Avatar name={user?.name ?? 'User'} size={40} />
           </button>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { X } from 'lucide-react'
 import type { ClientStatus, CreateClientInput } from '../types'
+import { Select, fieldClass, labelClass } from '../../../components/shared/fields'
 
 type AddClientModalProps = {
   isOpen: boolean
@@ -47,42 +48,41 @@ export function AddClientModal({ isOpen, isSubmitting, errorMessage, onClose, on
         )}
 
         <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Client name</span>
             <input
               value={form.name}
               onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+              className={fieldClass}
               required
             />
           </label>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Contact email</span>
             <input
               type="email"
               value={form.contactEmail}
               onChange={(event) => setForm((current) => ({ ...current, contactEmail: event.target.value }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+              className={fieldClass}
             />
           </label>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Industry</span>
             <input
               value={form.industry}
               onChange={(event) => setForm((current) => ({ ...current, industry: event.target.value }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+              className={fieldClass}
             />
           </label>
-          <label className="text-sm text-slate-400">
+          <label className={labelClass}>
             <span className="mb-2 block">Status</span>
-            <select
+            <Select
               value={form.status}
               onChange={(event) => setForm((current) => ({ ...current, status: event.target.value as ClientStatus }))}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
             >
               <option value="prospect">Prospect</option>
               <option value="active">Active</option>
-            </select>
+            </Select>
           </label>
 
           <div className="flex justify-end gap-3">

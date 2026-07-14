@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { X } from 'lucide-react'
 import type { Influencer } from '../../influencers/types'
 import type { CreateAnalyticsInput } from '../types'
+import { Select, fieldClass, labelClass } from '../../../components/shared/fields'
 
 type AddAnalyticsRecordModalProps = {
   isOpen: boolean
@@ -72,12 +73,11 @@ export function AddAnalyticsRecordModal({
           <p className="mt-6 text-sm text-slate-400">Add an influencer first before logging analytics.</p>
         ) : (
           <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
-            <label className="text-sm text-slate-400">
+            <label className={labelClass}>
               <span className="mb-2 block">Influencer</span>
-              <select
+              <Select
                 value={form.influencerId}
                 onChange={(event) => setForm((current) => ({ ...current, influencerId: event.target.value }))}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
                 required
               >
                 <option value="" disabled>
@@ -88,50 +88,50 @@ export function AddAnalyticsRecordModal({
                     {influencer.fullName}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
-            <label className="text-sm text-slate-400">
+            <label className={labelClass}>
               <span className="mb-2 block">Date</span>
               <input
                 type="date"
                 value={form.date}
                 onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                className={fieldClass}
                 required
               />
             </label>
             <div className="grid grid-cols-2 gap-4">
-              <label className="text-sm text-slate-400">
+              <label className={labelClass}>
                 <span className="mb-2 block">Impressions</span>
                 <input
                   type="number"
                   min="0"
                   value={form.impressions}
                   onChange={(event) => setForm((current) => ({ ...current, impressions: event.target.value }))}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                  className={fieldClass}
                 />
               </label>
-              <label className="text-sm text-slate-400">
+              <label className={labelClass}>
                 <span className="mb-2 block">Clicks</span>
                 <input
                   type="number"
                   min="0"
                   value={form.clicks}
                   onChange={(event) => setForm((current) => ({ ...current, clicks: event.target.value }))}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                  className={fieldClass}
                 />
               </label>
-              <label className="text-sm text-slate-400">
+              <label className={labelClass}>
                 <span className="mb-2 block">Conversions</span>
                 <input
                   type="number"
                   min="0"
                   value={form.conversions}
                   onChange={(event) => setForm((current) => ({ ...current, conversions: event.target.value }))}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                  className={fieldClass}
                 />
               </label>
-              <label className="text-sm text-slate-400">
+              <label className={labelClass}>
                 <span className="mb-2 block">Revenue ({currency})</span>
                 <input
                   type="number"
@@ -139,7 +139,7 @@ export function AddAnalyticsRecordModal({
                   step="0.01"
                   value={form.revenue}
                   onChange={(event) => setForm((current) => ({ ...current, revenue: event.target.value }))}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                  className={fieldClass}
                 />
               </label>
             </div>

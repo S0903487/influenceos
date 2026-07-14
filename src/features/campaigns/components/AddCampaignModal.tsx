@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { X } from 'lucide-react'
 import type { Client } from '../../clients/types'
 import type { CampaignStatus, CreateCampaignInput } from '../types'
+import { Select, fieldClass, textAreaClass, labelClass } from '../../../components/shared/fields'
 
 type AddCampaignModalProps = {
   isOpen: boolean
@@ -58,12 +59,11 @@ export function AddCampaignModal({ isOpen, isSubmitting, errorMessage, clients, 
           </p>
         ) : (
           <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
-            <label className="text-sm text-slate-400">
+            <label className={labelClass}>
               <span className="mb-2 block">Client</span>
-              <select
+              <Select
                 value={form.clientId}
                 onChange={(event) => setForm((current) => ({ ...current, clientId: event.target.value }))}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
                 required
               >
                 <option value="" disabled>
@@ -74,47 +74,47 @@ export function AddCampaignModal({ isOpen, isSubmitting, errorMessage, clients, 
                     {client.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
-            <label className="text-sm text-slate-400">
+            <label className={labelClass}>
               <span className="mb-2 block">Campaign name</span>
               <input
                 value={form.name}
                 onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                className={fieldClass}
                 required
               />
             </label>
-            <label className="text-sm text-slate-400">
+            <label className={labelClass}>
               <span className="mb-2 block">Description</span>
               <textarea
                 value={form.description}
                 onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
-                className="min-h-20 w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                className={textAreaClass}
               />
             </label>
             <div className="grid grid-cols-2 gap-4">
-              <label className="text-sm text-slate-400">
+              <label className={labelClass}>
                 <span className="mb-2 block">Start date</span>
                 <input
                   type="date"
                   value={form.startDate}
                   onChange={(event) => setForm((current) => ({ ...current, startDate: event.target.value }))}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                  className={fieldClass}
                 />
               </label>
-              <label className="text-sm text-slate-400">
+              <label className={labelClass}>
                 <span className="mb-2 block">End date</span>
                 <input
                   type="date"
                   value={form.endDate}
                   onChange={(event) => setForm((current) => ({ ...current, endDate: event.target.value }))}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                  className={fieldClass}
                 />
               </label>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <label className="text-sm text-slate-400">
+              <label className={labelClass}>
                 <span className="mb-2 block">Budget ({currency})</span>
                 <input
                   type="number"
@@ -126,22 +126,21 @@ export function AddCampaignModal({ isOpen, isSubmitting, errorMessage, clients, 
                       budget: event.target.value ? Number(event.target.value) : undefined,
                     }))
                   }
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
+                  className={fieldClass}
                 />
               </label>
-              <label className="text-sm text-slate-400">
+              <label className={labelClass}>
                 <span className="mb-2 block">Status</span>
-                <select
+                <Select
                   value={form.status}
                   onChange={(event) => setForm((current) => ({ ...current, status: event.target.value as CampaignStatus }))}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 outline-none"
                 >
                   <option value="draft">Draft</option>
                   <option value="active">Active</option>
                   <option value="paused">Paused</option>
                   <option value="completed">Completed</option>
                   <option value="cancelled">Cancelled</option>
-                </select>
+                </Select>
               </label>
             </div>
 
