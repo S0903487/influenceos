@@ -10,20 +10,10 @@ import {
   readJson,
   SESSION_TTL_MS,
   unauthorized,
+  validate,
   verifyPassword,
 } from '../utils';
-
-interface RegisterBody {
-  name: string;
-  email: string;
-  password: string;
-  organizationName?: string;
-}
-
-interface LoginBody {
-  email: string;
-  password: string;
-}
+import { loginSchema, registerSchema } from '../validators/auth';
 
 function publicUser(row: Record<string, unknown>) {
   return {
@@ -47,13 +37,7 @@ async function createSession(db: D1Database, userId: string): Promise<string> {
 }
 
 export async function register(request: Request, env: Env): Promise<Response> {
-  const body = await readJson<RegisterBody>(request);
-  if (!body.email || !body.password || !body.name) {
-    return badRequest('name, email, and password are required');
-  }
-  if (body.password.length < 8) {
-    return badRequest('Password must be at least 8 characters');
-  }
+  const body = await validate(registerSchema, await readJson(request));
 
   const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(body.email).first();
   if (existing) {
@@ -88,10 +72,7 @@ export async function register(request: Request, env: Env): Promise<Response> {
 }
 
 export async function login(request: Request, env: Env): Promise<Response> {
-  const body = await readJson<LoginBody>(request);
-  if (!body.email || !body.password) {
-    return badRequest('email and password are required');
-  }
+  const body = await validate(loginSchema, await readJson(request));
 
   const user = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(body.email).first();
   if (!user) {

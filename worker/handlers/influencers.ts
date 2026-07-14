@@ -1,31 +1,14 @@
 import type { AuthedRequest, Env } from '../types';
-import { badRequest, generateId, json, notFound, nowIso, readJson } from '../utils';
+import { badRequest, generateId, json, notFound, nowIso, readJson, validate } from '../utils';
+import {
+  influencerNoteSchema,
+  influencerSchema,
+  influencerTagSchema,
+  updateInfluencerSchema,
+} from '../validators/influencers';
+import { z } from 'zod';
 
-interface InfluencerBody {
-  fullName?: string;
-  username?: string;
-  platform?: string;
-  category?: string;
-  country?: string;
-  language?: string;
-  followers?: number;
-  engagementRate?: number;
-  averageViews?: number;
-  averageLikes?: number;
-  averageComments?: number;
-  email?: string;
-  phone?: string;
-  pricePost?: number;
-  priceStory?: number;
-  verified?: boolean;
-  brandSafe?: boolean;
-  status?: string;
-  pipelineStatus?: string;
-  notes?: string;
-  tags?: string[];
-  bio?: string;
-  profileImage?: string;
-}
+type InfluencerBody = z.infer<typeof influencerSchema>;
 
 export const PIPELINE_STATUSES = [
   'New',
@@ -86,8 +69,7 @@ export async function getById(_request: Request, env: Env, auth: AuthedRequest, 
 }
 
 export async function create(request: Request, env: Env, auth: AuthedRequest): Promise<Response> {
-  const body = await readJson<InfluencerBody>(request);
-  if (!body.fullName) return badRequest('fullName is required');
+  const body = await validate(influencerSchema, await readJson(request));
 
   const id = generateId('inf');
   const now = nowIso();
@@ -105,23 +87,23 @@ export async function create(request: Request, env: Env, auth: AuthedRequest): P
       auth.organizationId,
       body.fullName,
       body.username ?? null,
-      body.platform ?? 'Instagram',
+      body.platform,
       body.category ?? null,
       body.country ?? null,
       body.language ?? null,
-      body.followers ?? 0,
-      body.engagementRate ?? 0,
-      body.averageViews ?? 0,
-      body.averageLikes ?? 0,
-      body.averageComments ?? 0,
+      body.followers,
+      body.engagementRate,
+      body.averageViews,
+      body.averageLikes,
+      body.averageComments,
       body.email ?? null,
       body.phone ?? null,
       body.pricePost ?? null,
       body.priceStory ?? null,
       body.verified ? 1 : 0,
-      body.brandSafe === false ? 0 : 1,
-      body.status ?? 'Active',
-      body.pipelineStatus ?? 'New',
+      body.brandSafe ? 1 : 0,
+      body.status,
+      body.pipelineStatus,
       body.notes ?? null,
       body.tags ? JSON.stringify(body.tags) : null,
       body.bio ?? null,
@@ -140,11 +122,11 @@ export async function create(request: Request, env: Env, auth: AuthedRequest): P
       generateId('snap'),
       id,
       now,
-      body.followers ?? 0,
-      body.averageViews ?? 0,
-      body.averageLikes ?? 0,
-      body.averageComments ?? 0,
-      body.engagementRate ?? 0,
+      body.followers,
+      body.averageViews,
+      body.averageLikes,
+      body.averageComments,
+      body.engagementRate,
       now
     )
     .run();
@@ -153,7 +135,7 @@ export async function create(request: Request, env: Env, auth: AuthedRequest): P
   return json(toApi(row as Record<string, unknown>), 201);
 }
 
-const COLUMN_MAP: Record<keyof InfluencerBody, string> = {
+const COLUMN_MAP: Record<string, string> = {
   fullName: 'full_name',
   username: 'username',
   platform: 'platform',
@@ -185,11 +167,11 @@ export async function update(request: Request, env: Env, auth: AuthedRequest, id
     .first();
   if (!existing) return notFound();
 
-  const body = await readJson<InfluencerBody>(request);
+  const body = await validate(updateInfluencerSchema, await readJson(request));
   const sets: string[] = [];
   const values: unknown[] = [];
 
-  for (const key of Object.keys(body) as (keyof InfluencerBody)[]) {
+  for (const key of Object.keys(body) as (keyof typeof body)[]) {
     const column = COLUMN_MAP[key];
     if (!column) continue;
     let value: unknown = body[key];
@@ -211,7 +193,7 @@ export async function update(request: Request, env: Env, auth: AuthedRequest, id
 
   const row = await env.DB.prepare('SELECT * FROM influencers WHERE id = ?').bind(id).first();
 
-  const growthFields: (keyof InfluencerBody)[] = ['followers', 'averageViews', 'averageLikes', 'averageComments', 'engagementRate'];
+  const growthFields: (keyof typeof body)[] = ['followers', 'averageViews', 'averageLikes', 'averageComments', 'engagementRate'];
   if (growthFields.some((field) => field in body)) {
     const r = row as Record<string, unknown>;
     await env.DB.prepare(
@@ -324,18 +306,17 @@ export async function addNote(request: Request, env: Env, auth: AuthedRequest, i
     .first();
   if (!influencer) return notFound();
 
-  const body = await readJson<{ body?: string }>(request);
-  if (!body.body || !body.body.trim()) return badRequest('body is required');
+  const body = await validate(influencerNoteSchema, await readJson(request));
 
   const noteId = generateId('note');
   const now = nowIso();
   await env.DB.prepare(
     'INSERT INTO influencer_notes (id, influencer_id, author_id, body, created_at) VALUES (?, ?, ?, ?, ?)'
   )
-    .bind(noteId, id, auth.userId, body.body.trim(), now)
+    .bind(noteId, id, auth.userId, body.body, now)
     .run();
 
-  return json({ id: noteId, body: body.body.trim(), authorId: auth.userId, createdAt: now }, 201);
+  return json({ id: noteId, body: body.body, authorId: auth.userId, createdAt: now }, 201);
 }
 
 // DELETE /api/influencers/:id/notes/:noteId
@@ -380,9 +361,8 @@ export async function addInfluencerTag(request: Request, env: Env, auth: AuthedR
     .first();
   if (!influencer) return notFound();
 
-  const body = await readJson<{ name?: string }>(request);
-  const name = body.name?.trim();
-  if (!name) return badRequest('name is required');
+  const body = await validate(influencerTagSchema, await readJson(request));
+  const name = body.name.trim();
 
   let tag = await env.DB.prepare('SELECT id, name FROM tags WHERE organization_id = ? AND name = ?')
     .bind(auth.organizationId, name)

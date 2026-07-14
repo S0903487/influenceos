@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 // ============ HTTP helpers ============
 
 export function json(data: unknown, status = 200): Response {
@@ -21,6 +23,15 @@ export async function readJson<T>(request: Request): Promise<T> {
   } catch {
     throw new HttpError('Invalid JSON body', 400);
   }
+}
+
+export async function validate<T>(schema: z.Schema<T>, data: unknown): Promise<T> {
+  const result = await schema.safeParseAsync(data);
+  if (!result.success) {
+    const message = result.error.errors[0]?.message ?? 'Invalid data';
+    throw new HttpError(message, 400);
+  }
+  return result.data;
 }
 
 export class HttpError extends Error {
