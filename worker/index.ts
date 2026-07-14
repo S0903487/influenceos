@@ -6,6 +6,7 @@ import * as clientHandlers from './handlers/clients';
 import * as campaignHandlers from './handlers/campaigns';
 import * as influencerHandlers from './handlers/influencers';
 import * as analyticsHandlers from './handlers/analytics';
+import * as tagHandlers from './handlers/tags';
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -85,11 +86,32 @@ async function routeApi(request: Request, env: Env, url: URL): Promise<Response>
   if (resource === 'influencers') {
     if (!id && method === 'GET') return influencerHandlers.list(request, env, auth);
     if (!id && method === 'POST') return influencerHandlers.create(request, env, auth);
-    if (id && method === 'GET') return influencerHandlers.getById(request, env, auth, id);
-    if (id && (method === 'PUT' || method === 'PATCH')) return influencerHandlers.update(request, env, auth, id);
-    if (id && method === 'DELETE') return influencerHandlers.remove(request, env, auth, id);
+    if (id && !sub && method === 'GET') return influencerHandlers.getById(request, env, auth, id);
+    if (id && !sub && (method === 'PUT' || method === 'PATCH')) return influencerHandlers.update(request, env, auth, id);
+    if (id && !sub && method === 'DELETE') return influencerHandlers.remove(request, env, auth, id);
+
+    if (id && sub === 'campaigns' && !subId && method === 'GET')
+      return influencerHandlers.getCampaigns(request, env, auth, id);
+
+    if (id && sub === 'snapshots' && !subId && method === 'GET')
+      return influencerHandlers.listSnapshots(request, env, auth, id);
+
+    if (id && sub === 'notes' && !subId && method === 'GET') return influencerHandlers.listNotes(request, env, auth, id);
+    if (id && sub === 'notes' && !subId && method === 'POST') return influencerHandlers.addNote(request, env, auth, id);
+    if (id && sub === 'notes' && subId && method === 'DELETE')
+      return influencerHandlers.removeNote(request, env, auth, id, subId);
+
+    if (id && sub === 'tags' && !subId && method === 'GET')
+      return influencerHandlers.listInfluencerTags(request, env, auth, id);
+    if (id && sub === 'tags' && !subId && method === 'POST')
+      return influencerHandlers.addInfluencerTag(request, env, auth, id);
+    if (id && sub === 'tags' && subId && method === 'DELETE')
+      return influencerHandlers.removeInfluencerTag(request, env, auth, id, subId);
+
     return notFound();
   }
+
+  if (resource === 'tags' && !id && method === 'GET') return tagHandlers.list(request, env, auth);
 
   if (resource === 'analytics') {
     if (!id && method === 'GET') return analyticsHandlers.list(request, env, auth);

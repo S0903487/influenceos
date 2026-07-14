@@ -6,6 +6,7 @@ import CampaignsPage from '../../features/campaigns/CampaignsPage'
 import ClientsPage from '../../features/clients/ClientsPage'
 import DashboardPage from '../../features/dashboard/DashboardPage'
 import InfluencersPage from '../../features/influencers/InfluencersPage'
+import InfluencerProfilePage from '../../features/influencers/InfluencerProfilePage'
 import SettingsPage from '../../features/settings/SettingsPage'
 
 function AppRouter() {
@@ -15,6 +16,7 @@ function AppRouter() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/influencers" element={<InfluencersPage />} />
+          <Route path="/influencers/:id" element={<InfluencerProfilePage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />

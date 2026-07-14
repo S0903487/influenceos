@@ -4,6 +4,7 @@ import PageShell from '../../components/shared/PageShell'
 import { AddInfluencerModal } from './components/AddInfluencerModal'
 import { InfluencerCard } from './components/InfluencerCard'
 import { InfluencerFilters } from './components/InfluencerFilters'
+import type { EmailFilter, VerifiedFilter } from './components/InfluencerFilters'
 import { InfluencerTable } from './components/InfluencerTable'
 import { useCreateInfluencer, useInfluencers } from './hooks/useInfluencers'
 import type { Platform } from './types'
@@ -16,23 +17,27 @@ function InfluencersPage() {
   const [platform, setPlatform] = useState<'All' | Platform>('All')
   const [category, setCategory] = useState('All')
   const [sort, setSort] = useState<'followers-desc' | 'followers-asc'>('followers-desc')
+  const [verified, setVerified] = useState<VerifiedFilter>('All')
+  const [hasEmail, setHasEmail] = useState<EmailFilter>('All')
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const visibleInfluencers = useMemo(() => {
     const source = influencers ?? []
     const filtered = source.filter((influencer) => {
-      const haystack = `${influencer.fullName} ${influencer.username} ${influencer.category}`.toLowerCase()
+      const haystack = `${influencer.fullName} ${influencer.username} ${influencer.category} ${influencer.country} ${influencer.language}`.toLowerCase()
       const matchesQuery = haystack.includes(query.toLowerCase())
       const matchesPlatform = platform === 'All' || influencer.platform === platform
       const matchesCategory = category === 'All' || influencer.category === category
+      const matchesVerified = verified === 'All' || influencer.verified
+      const matchesEmail = hasEmail === 'All' || Boolean(influencer.email)
 
-      return matchesQuery && matchesPlatform && matchesCategory
+      return matchesQuery && matchesPlatform && matchesCategory && matchesVerified && matchesEmail
     })
 
     return filtered.sort((left, right) => {
       return sort === 'followers-desc' ? right.followers - left.followers : left.followers - right.followers
     })
-  }, [category, influencers, platform, query, sort])
+  }, [category, hasEmail, influencers, platform, query, sort, verified])
 
   const statsData = useMemo(() => {
     const source = influencers ?? []
@@ -99,7 +104,7 @@ function InfluencersPage() {
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search by name or niche"
+                placeholder="Search by name, niche, country, or language"
                 className="w-full border-none bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
               />
             </label>
@@ -108,9 +113,13 @@ function InfluencersPage() {
                 platform={platform}
                 category={category}
                 sort={sort}
+                verified={verified}
+                hasEmail={hasEmail}
                 onPlatformChange={setPlatform}
                 onCategoryChange={setCategory}
                 onSortChange={setSort}
+                onVerifiedChange={setVerified}
+                onHasEmailChange={setHasEmail}
               />
             </div>
           </div>

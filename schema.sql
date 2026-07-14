@@ -87,8 +87,9 @@ CREATE TABLE IF NOT EXISTS influencers (
   verified         INTEGER NOT NULL DEFAULT 0, -- 0/1
   brand_safe       INTEGER NOT NULL DEFAULT 1, -- 0/1
   status           TEXT NOT NULL DEFAULT 'Active', -- Active | Review | Paused | Booked
-  notes            TEXT,
-  tags             TEXT, -- JSON array, e.g. ["fashion","us","instagram"]
+  pipeline_status  TEXT NOT NULL DEFAULT 'New', -- New|Reviewed|Contacted|Replied|Negotiating|Booked|Completed|Inactive
+  notes            TEXT, -- legacy freeform note; see influencer_notes for the structured log
+  tags             TEXT, -- legacy JSON array; see tags/influencer_tags for the normalized version
   bio              TEXT,
   profile_image    TEXT,
   created_at       TEXT NOT NULL,
@@ -97,6 +98,49 @@ CREATE TABLE IF NOT EXISTS influencers (
 CREATE INDEX IF NOT EXISTS idx_influencers_org ON influencers(organization_id);
 CREATE INDEX IF NOT EXISTS idx_influencers_platform ON influencers(platform);
 CREATE INDEX IF NOT EXISTS idx_influencers_status ON influencers(status);
+CREATE INDEX IF NOT EXISTS idx_influencers_pipeline ON influencers(pipeline_status);
+
+-- ============ Tags (normalized, org-scoped, many-to-many) ============
+CREATE TABLE IF NOT EXISTS tags (
+  id              TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL,
+  created_at      TEXT NOT NULL,
+  UNIQUE (organization_id, name)
+);
+CREATE INDEX IF NOT EXISTS idx_tags_org ON tags(organization_id);
+
+CREATE TABLE IF NOT EXISTS influencer_tags (
+  influencer_id TEXT NOT NULL REFERENCES influencers(id) ON DELETE CASCADE,
+  tag_id        TEXT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+  added_at      TEXT NOT NULL,
+  PRIMARY KEY (influencer_id, tag_id)
+);
+CREATE INDEX IF NOT EXISTS idx_influencer_tags_tag ON influencer_tags(tag_id);
+
+-- ============ Notes (structured, timestamped, many per influencer) ============
+CREATE TABLE IF NOT EXISTS influencer_notes (
+  id            TEXT PRIMARY KEY,
+  influencer_id TEXT NOT NULL REFERENCES influencers(id) ON DELETE CASCADE,
+  author_id     TEXT REFERENCES users(id) ON DELETE SET NULL,
+  body          TEXT NOT NULL,
+  created_at    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_influencer_notes_influencer ON influencer_notes(influencer_id);
+
+-- ============ Analytics history (account growth, independent of campaigns) ============
+CREATE TABLE IF NOT EXISTS influencer_snapshots (
+  id                TEXT PRIMARY KEY,
+  influencer_id     TEXT NOT NULL REFERENCES influencers(id) ON DELETE CASCADE,
+  date              TEXT NOT NULL,
+  followers         INTEGER NOT NULL DEFAULT 0,
+  average_views     INTEGER NOT NULL DEFAULT 0,
+  average_likes     INTEGER NOT NULL DEFAULT 0,
+  average_comments  INTEGER NOT NULL DEFAULT 0,
+  engagement_rate   REAL NOT NULL DEFAULT 0,
+  created_at        TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_influencer_snapshots_influencer ON influencer_snapshots(influencer_id, date);
 
 -- ============ Campaign <-> Influencer (many-to-many) ============
 CREATE TABLE IF NOT EXISTS campaign_influencers (

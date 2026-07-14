@@ -1,22 +1,33 @@
 import type { Platform } from '../types'
 import { Select, labelClass } from '../../../components/shared/fields'
 
+export type VerifiedFilter = 'All' | 'Verified only'
+export type EmailFilter = 'All' | 'Has email'
+
 type InfluencerFiltersProps = {
   platform: 'All' | Platform
   category: string
   sort: 'followers-desc' | 'followers-asc'
+  verified: VerifiedFilter
+  hasEmail: EmailFilter
   onPlatformChange: (value: 'All' | Platform) => void
   onCategoryChange: (value: string) => void
   onSortChange: (value: 'followers-desc' | 'followers-asc') => void
+  onVerifiedChange: (value: VerifiedFilter) => void
+  onHasEmailChange: (value: EmailFilter) => void
 }
 
 export function InfluencerFilters({
   platform,
   category,
   sort,
+  verified,
+  hasEmail,
   onPlatformChange,
   onCategoryChange,
   onSortChange,
+  onVerifiedChange,
+  onHasEmailChange,
 }: InfluencerFiltersProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -45,6 +56,22 @@ export function InfluencerFilters({
           <option value="Education">Education</option>
           <option value="Comedy">Comedy</option>
           <option value="Lifestyle">Lifestyle</option>
+        </Select>
+      </label>
+
+      <label className={labelClass}>
+        <span className="mb-2 block">Verification</span>
+        <Select value={verified} onChange={(event) => onVerifiedChange(event.target.value as VerifiedFilter)}>
+          <option value="All">All</option>
+          <option value="Verified only">Verified only</option>
+        </Select>
+      </label>
+
+      <label className={labelClass}>
+        <span className="mb-2 block">Contact</span>
+        <Select value={hasEmail} onChange={(event) => onHasEmailChange(event.target.value as EmailFilter)}>
+          <option value="All">All</option>
+          <option value="Has email">Has email</option>
         </Select>
       </label>
 
