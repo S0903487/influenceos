@@ -76,6 +76,13 @@ export function useLogout() {
       queryClient.setQueryData([...AUTH_QUERY_KEY, 'user'], null);
       queryClient.clear();
     },
+    onError: () => {
+      // Even if the server call fails (expired session, network hiccup),
+      // still clear local state so the user isn't stuck "logged in".
+      clearAuthToken();
+      queryClient.setQueryData([...AUTH_QUERY_KEY, 'user'], null);
+      queryClient.clear();
+    },
   });
 }
 
