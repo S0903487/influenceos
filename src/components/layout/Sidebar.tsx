@@ -17,7 +17,7 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', icon: LayoutGrid, path: '/' },
+  { label: 'Dashboard', icon: LayoutGrid, path: '/dashboard' },
   { label: 'Influencers', icon: Users, path: '/influencers' },
   { label: 'Campaigns', icon: Megaphone, path: '/campaigns' },
   { label: 'Clients', icon: Briefcase, path: '/clients' },

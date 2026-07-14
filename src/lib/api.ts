@@ -1,78 +1,48 @@
-class ApiError extends Error {
-  status: number;
-  details?: unknown;
+import { getAuthToken } from '../features/auth/services/authService';
 
-  constructor(message: string, status = 500, details?: unknown) {
+interface ApiErrorBody {
+  error?: string;
+}
+
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
     super(message);
     this.status = status;
-    this.details = details;
     Object.setPrototypeOf(this, ApiError.prototype);
   }
 }
 
-export class ApiClient {
-  baseUrl: string;
-
-  constructor(baseUrl?: string) {
-    // Vite exposes env vars under import.meta.env
-    // fallback to provided baseUrl or empty string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const envBase = (typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_API_BASE_URL : undefined) as string | undefined;
-    this.baseUrl = baseUrl ?? envBase ?? '';
+/**
+ * Shared fetch wrapper for every /api/* resource (clients, campaigns,
+ * influencers, analytics, organizations). Attaches the stored auth token
+ * as a Bearer header, same as authService's own apiRequest.
+ */
+export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string> | undefined),
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
 
-  private async request<T>(path: string, init?: RequestInit): Promise<T> {
-    const url = this.baseUrl ? `${this.baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}` : path;
-    let res: Response;
-    try {
-      res = await fetch(url, init);
-    } catch (err) {
-      throw new ApiError('Network request failed', 0, err);
-    }
+  const response = await fetch(`/api${path}`, {
+    ...options,
+    headers,
+  });
 
-    const text = await res.text();
-    const contentType = res.headers.get('content-type') || '';
-    let body: unknown = text;
-    if (contentType.includes('application/json') && text) {
-      try {
-        body = JSON.parse(text);
-      } catch (err) {
-        throw new ApiError('Invalid JSON response', res.status, err);
-      }
-    }
-
-    if (!res.ok) {
-      throw new ApiError(typeof body === 'string' ? body : 'API error', res.status, body);
-    }
-
-    return body as T;
+  if (response.status === 204) {
+    return undefined as T;
   }
 
-  get<T>(path: string): Promise<T> {
-    return this.request<T>(path, { method: 'GET' });
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const message = (data as ApiErrorBody | null)?.error ?? 'Something went wrong. Please try again.';
+    throw new ApiError(message, response.status);
   }
 
-  post<T>(path: string, data?: unknown): Promise<T> {
-    return this.request<T>(path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: data ? JSON.stringify(data) : undefined,
-    });
-  }
-
-  put<T>(path: string, data?: unknown): Promise<T> {
-    return this.request<T>(path, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: data ? JSON.stringify(data) : undefined,
-    });
-  }
-
-  delete<T>(path: string): Promise<T> {
-    return this.request<T>(path, { method: 'DELETE' });
-  }
+  return data as T;
 }
-
-export const apiClient = new ApiClient();
-
-export { ApiError };

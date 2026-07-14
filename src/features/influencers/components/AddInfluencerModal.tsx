@@ -1,12 +1,15 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { X } from 'lucide-react'
 import type { Influencer, Platform } from '../types'
+import type { CreateInfluencerInput } from '../services/influencerService'
 
 type AddInfluencerModalProps = {
   isOpen: boolean
+  isSubmitting: boolean
+  errorMessage: string | null
   onClose: () => void
-  onAdd: (influencer: Influencer) => void
+  onSubmit: (data: CreateInfluencerInput) => void
 }
 
 const defaultForm = {
@@ -22,36 +25,8 @@ const defaultForm = {
   status: 'Active' as Influencer['status'],
 }
 
-export function AddInfluencerModal({ isOpen, onClose, onAdd }: AddInfluencerModalProps) {
+export function AddInfluencerModal({ isOpen, isSubmitting, errorMessage, onClose, onSubmit }: AddInfluencerModalProps) {
   const [form, setForm] = useState(defaultForm)
-
-  const newInfluencer = useMemo<Influencer>(() => {
-    const safeUsername = form.username.trim() || `@${form.fullName.replace(/\s+/g, '').toLowerCase()}`
-    return {
-      id: `new-${Date.now()}`,
-      fullName: form.fullName.trim() || 'New Creator',
-      username: safeUsername,
-      platform: form.platform,
-      category: form.category,
-      country: form.country,
-      language: form.language,
-      followers: 25000,
-      engagementRate: 5.8,
-      averageViews: 42000,
-      averageLikes: 1800,
-      averageComments: 120,
-      email: form.email.trim() || 'creator@influenceos.app',
-      phone: form.phone.trim() || '+1 555 0100',
-      pricePost: 2500,
-      priceStory: 1200,
-      verified: true,
-      brandSafe: true,
-      status: form.status,
-      notes: form.notes.trim() || 'Added from the CRM workspace.',
-      tags: ['New Lead'],
-      profileImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80',
-    }
-  }, [form])
 
   if (!isOpen) {
     return null
@@ -59,8 +34,22 @@ export function AddInfluencerModal({ isOpen, onClose, onAdd }: AddInfluencerModa
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    onAdd(newInfluencer)
-    setForm(defaultForm)
+    if (!form.fullName.trim()) return
+
+    const safeUsername = form.username.trim() || `@${form.fullName.replace(/\s+/g, '').toLowerCase()}`
+    onSubmit({
+      fullName: form.fullName.trim(),
+      username: safeUsername,
+      platform: form.platform,
+      category: form.category,
+      country: form.country,
+      language: form.language,
+      email: form.email.trim() || undefined,
+      phone: form.phone.trim() || undefined,
+      status: form.status,
+      notes: form.notes.trim() || undefined,
+      tags: ['New Lead'],
+    })
   }
 
   return (
@@ -75,6 +64,10 @@ export function AddInfluencerModal({ isOpen, onClose, onAdd }: AddInfluencerModa
             <X size={16} />
           </button>
         </div>
+
+        {errorMessage && (
+          <p className="mt-4 rounded-lg bg-red-950/60 px-3 py-2 text-sm text-red-300 md:col-span-2">{errorMessage}</p>
+        )}
 
         <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
           <label className="text-sm text-slate-400">
@@ -165,8 +158,12 @@ export function AddInfluencerModal({ isOpen, onClose, onAdd }: AddInfluencerModa
             <button type="button" onClick={onClose} className="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300">
               Cancel
             </button>
-            <button type="submit" className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950">
-              Save influencer
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-60"
+            >
+              {isSubmitting ? 'Saving…' : 'Save influencer'}
             </button>
           </div>
         </form>
