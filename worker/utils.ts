@@ -28,7 +28,7 @@ export async function readJson<T>(request: Request): Promise<T> {
 export async function validate<T>(schema: z.Schema<T>, data: unknown): Promise<T> {
   const result = await schema.safeParseAsync(data);
   if (!result.success) {
-    const message = result.error.errors[0]?.message ?? 'Invalid data';
+    const message = result.error.issues[0]?.message ?? 'Invalid data';
     throw new HttpError(message, 400);
   }
   return result.data;
